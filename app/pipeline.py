@@ -124,6 +124,15 @@ def run_pipeline(trigger: str = "manual", do_scrape: bool = True) -> dict:
                         message=f"Matching {i}/{total} (matched {matched_count})",
                     )
 
+        # Update the chat search index (embed any new jobs). Non-fatal.
+        _set_status(run_id, message="Updating search index…")
+        try:
+            from app.embeddings import embed_missing
+
+            embed_missing()
+        except Exception:
+            log.exception("embedding step failed (non-fatal)")
+
         summary = dict(
             run_id=run_id, scraped=len(scraped), new=new_count,
             matched=matched_count, errors=error_count,

@@ -57,6 +57,7 @@ class ConfigOut(BaseModel):
     schedule_enabled: bool
     schedule_hour: int
     schedule_minute: int
+    chat_model: str
     prompt_version: int
 
     model_config = {"from_attributes": True}
@@ -75,6 +76,7 @@ class ConfigIn(BaseModel):
     schedule_enabled: bool = True
     schedule_hour: int = Field(ge=0, le=23)
     schedule_minute: int = Field(ge=0, le=59)
+    chat_model: str = "gpt-4.1"
 
     @field_validator("search_terms")
     @classmethod
@@ -145,3 +147,18 @@ class SuggestTermsIn(BaseModel):
 
 class SuggestTermsOut(BaseModel):
     terms: list[str]
+
+
+class ChatMessage(BaseModel):
+    role: str  # "user" | "assistant"
+    content: str
+
+
+class ChatIn(BaseModel):
+    messages: list[ChatMessage]
+    model: Optional[str] = None
+
+
+class ChatOut(BaseModel):
+    reply: str
+    jobs: list[JobOut] = []

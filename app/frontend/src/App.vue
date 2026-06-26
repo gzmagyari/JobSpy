@@ -4,6 +4,7 @@
       <div class="brand">🎯 Job Matcher</div>
       <nav class="nav">
         <router-link to="/jobs">Jobs</router-link>
+        <router-link to="/chat">Chat</router-link>
         <router-link to="/config">Config</router-link>
       </nav>
     </header>

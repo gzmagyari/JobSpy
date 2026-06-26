@@ -20,12 +20,24 @@ def _set_sqlite_pragma(dbapi_conn, _record):
     cur.close()
 
 
+def _ensure_columns() -> None:
+    """Lightweight migrations: add columns introduced after a DB already exists."""
+    with engine.connect() as conn:
+        cols = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(setting)").fetchall()}
+        if "chat_model" not in cols:
+            conn.exec_driver_sql(
+                "ALTER TABLE setting ADD COLUMN chat_model VARCHAR DEFAULT 'gpt-4.1'"
+            )
+            conn.commit()
+
+
 def init_db() -> None:
-    """Create tables (if missing) and seed the single settings row."""
+    """Create tables (if missing), run migrations, and seed the settings row."""
     import app.models  # noqa: F401  (register models on metadata)
     from app.models import Setting
 
     SQLModel.metadata.create_all(engine)
+    _ensure_columns()
     with Session(engine) as session:
         if session.get(Setting, 1) is None:
             session.add(Setting(id=1, **DEFAULT_SETTINGS))

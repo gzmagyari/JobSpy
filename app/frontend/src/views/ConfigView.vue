@@ -40,7 +40,8 @@
 
         <label class="field">Location<input v-model="form.location" /></label>
         <label class="field">Indeed country<input v-model="form.country_indeed" /></label>
-        <label class="field">OpenAI model<input v-model="form.openai_model" /></label>
+        <label class="field">Matching model<input v-model="form.openai_model" /></label>
+        <label class="field">Chat agent model<input v-model="form.chat_model" /></label>
         <label class="field">Results per site<input type="number" v-model.number="form.results_wanted" min="1" max="1000" /></label>
         <label class="field">Max age (hours)<input type="number" v-model.number="form.hours_old" min="1" /></label>
       </div>
@@ -135,6 +136,7 @@ export default {
         const payload = {
           match_prompt: this.form.match_prompt,
           openai_model: this.form.openai_model,
+          chat_model: this.form.chat_model,
           search_terms: this.termsText.split('\n').map((s) => s.trim()).filter(Boolean),
           sites: this.form.sites,
           location: this.form.location,

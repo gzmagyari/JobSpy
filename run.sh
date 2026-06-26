@@ -21,5 +21,7 @@ if [ ! -d app/frontend/dist ]; then
 fi
 
 export PYTHONPATH="$ROOT"
+# Bind 0.0.0.0 (not 127.0.0.1) so Windows can reach it reliably even when WSL2's
+# localhost-forwarding bridge drops — fall back to http://<wsl-ip>:8077 if needed.
 echo "Starting on http://localhost:8077  (Ctrl+C to stop)"
-exec .venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8077
+exec .venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8077

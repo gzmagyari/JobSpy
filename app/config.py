@@ -53,4 +53,5 @@ DEFAULT_SETTINGS = dict(
     schedule_enabled=True,
     schedule_hour=7,
     schedule_minute=0,
+    chat_model="gpt-4.1",
 )

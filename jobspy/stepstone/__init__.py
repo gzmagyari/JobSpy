@@ -61,8 +61,11 @@ class StepstoneScraper(Scraper):
     ID_PREFIX: str = ""
     LABEL: str = "Stepstone"
     jobs_per_page = 25
-    delay = 1
-    band_delay = 2
+    # Totaljobs/Akamai blocks IPs that fetch too aggressively, so we pause a few
+    # seconds between each detail-page fetch to stay under their rate limit.
+    # (Scrapes all the jobs you ask for — just more slowly.)
+    delay = 4
+    band_delay = 4
 
     def __init__(self, proxies=None, ca_cert=None, user_agent=None):
         super().__init__(self.SITE, proxies=proxies, ca_cert=ca_cert, user_agent=user_agent)

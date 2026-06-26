@@ -34,4 +34,5 @@ export default {
   startRun: () => request('/run', { method: 'POST' }),
   getRunStatus: () => request('/run/status'),
   getStats: () => request('/stats'),
+  chat: (messages, model) => request('/chat', { method: 'POST', body: JSON.stringify({ messages, model }) }),
 }

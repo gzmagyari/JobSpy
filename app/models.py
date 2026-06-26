@@ -79,5 +79,15 @@ class Setting(SQLModel, table=True):
     schedule_enabled: bool = True
     schedule_hour: int = 7
     schedule_minute: int = 0
+    chat_model: str = "gpt-4.1"
     prompt_version: int = 1
     updated_at: datetime = Field(default_factory=now)
+
+
+class JobEmbedding(SQLModel, table=True):
+    """Cached OpenAI embedding vector for a job, for the chat agent's search."""
+
+    job_id: str = Field(primary_key=True)
+    vector: list[float] = Field(default_factory=list, sa_column=Column(JSON))
+    model: str = "text-embedding-3-small"
+    created_at: datetime = Field(default_factory=now)

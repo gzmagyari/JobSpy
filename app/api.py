@@ -7,13 +7,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import delete, func, or_
 from sqlmodel import Session, select
 
+from app.chat import run_chat
 from app.db import get_session
 from app.matcher import suggest_search_terms
 from app.models import Job, Run, Setting, now
 from app.pipeline import AlreadyRunningError, is_running
 from app.schemas import (
-    ActionResult, ConfigIn, ConfigOut, JobOut, JobsPage, JobStateIn, RunStatus, Stats,
-    SuggestTermsIn, SuggestTermsOut,
+    ActionResult, ChatIn, ChatOut, ConfigIn, ConfigOut, JobOut, JobsPage, JobStateIn,
+    RunStatus, Stats, SuggestTermsIn, SuggestTermsOut,
 )
 from app.scheduler import apply_schedule, next_run_time, trigger_manual_run
 
@@ -195,3 +196,22 @@ def stats(session: Session = Depends(get_session)):
         applied=count(user_state="applied"),
         dismissed=count(user_state="dismissed"),
     )
+
+
+# ---- Chat ------------------------------------------------------------------
+@router.post("/chat", response_model=ChatOut)
+def chat(payload: ChatIn, session: Session = Depends(get_session)):
+    try:
+        result = run_chat([m.model_dump() for m in payload.messages], model=payload.model)
+    except RuntimeError as e:
+        raise HTTPException(400, str(e))
+    except Exception as e:  # noqa: BLE001
+        log.exception("chat failed")
+        raise HTTPException(502, f"chat error: {e}")
+
+    jobs: list[JobOut] = []
+    for jid in result.get("job_ids", []):
+        job = session.get(Job, jid)
+        if job is not None:
+            jobs.append(JobOut.model_validate(job))
+    return ChatOut(reply=result.get("reply", ""), jobs=jobs)

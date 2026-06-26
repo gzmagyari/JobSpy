@@ -17,7 +17,7 @@
       <div v-for="(m, i) in messages" :key="i" class="msg" :class="m.role">
         <template v-if="m.role === 'assistant'">
           <template v-for="(seg, si) in segments(m)">
-            <div v-if="seg.type === 'text'" :key="'t' + si" class="bubble">{{ seg.text }}</div>
+            <div v-if="seg.type === 'text'" :key="'t' + si" class="bubble md" v-html="renderMd(seg.text)"></div>
             <div v-else :key="'c' + si" class="msg-cards">
               <JobCard :job="seg.job" @set-state="onSetState" />
             </div>
@@ -47,8 +47,19 @@
 <script>
 import JobCard from '../components/JobCard.vue'
 import api from '../api'
+import MarkdownIt from 'markdown-it'
 
 const STORAGE_KEY = 'jobmatcher.chat'
+
+// html:false (default) escapes any raw HTML in the agent's text — safe for v-html.
+const md = new MarkdownIt({ linkify: true, breaks: true })
+const _openLink =
+  md.renderer.rules.link_open || ((t, i, o, e, s) => s.renderToken(t, i, o))
+md.renderer.rules.link_open = (tokens, idx, opts, env, self) => {
+  tokens[idx].attrSet('target', '_blank')
+  tokens[idx].attrSet('rel', 'noopener')
+  return _openLink(tokens, idx, opts, env, self)
+}
 
 export default {
   name: 'ChatView',
@@ -79,6 +90,9 @@ export default {
     useExample(text) {
       this.input = text
       this.send()
+    },
+    renderMd(text) {
+      return md.render(text || '')
     },
     // Split an assistant message into ordered text/card segments by parsing the
     // ```jobcard fences the agent emits; cards resolve against message.jobs.

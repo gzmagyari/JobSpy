@@ -293,6 +293,9 @@ class Site(Enum):
     BAYT = "bayt"
     NAUKRI = "naukri"
     BDJOBS = "bdjobs"  # Add this line
+    # UK boards added for the job-matching dashboard
+    REED = "reed"
+    TOTALJOBS = "totaljobs"
 
 
 class SalarySource(Enum):

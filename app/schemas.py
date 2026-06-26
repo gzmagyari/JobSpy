@@ -6,7 +6,10 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
-ALLOWED_SITES = {"indeed", "linkedin", "glassdoor", "google", "zip_recruiter", "bayt", "naukri", "bdjobs"}
+ALLOWED_SITES = {
+    "indeed", "linkedin", "glassdoor", "google", "zip_recruiter", "bayt", "naukri", "bdjobs",
+    "reed", "totaljobs",
+}
 
 
 class JobOut(BaseModel):

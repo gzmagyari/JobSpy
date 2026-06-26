@@ -30,6 +30,8 @@
           <span>Job boards</span>
           <label class="chk"><input type="checkbox" value="indeed" v-model="form.sites" /> Indeed</label>
           <label class="chk"><input type="checkbox" value="linkedin" v-model="form.sites" /> LinkedIn</label>
+          <label class="chk"><input type="checkbox" value="reed" v-model="form.sites" /> Reed</label>
+          <label class="chk"><input type="checkbox" value="totaljobs" v-model="form.sites" /> Totaljobs</label>
           <label class="chk">
             <input type="checkbox" v-model="form.linkedin_fetch_description" />
             Fetch full LinkedIn descriptions (slower, better matching)
@@ -63,12 +65,20 @@
     </div>
 
     <section class="panel danger">
-      <h2>Re-match stored jobs</h2>
+      <h2>Danger zone</h2>
       <p class="hint">
         Re-evaluate every job already in the database against the current prompt. Useful after
         editing the prompt. This uses OpenAI credits.
       </p>
       <button class="btn" @click="rematch">Re-match all stored jobs</button>
+      <hr class="sep" />
+      <p class="hint">
+        Remove every stored job and run history to start fresh. Your settings and prompt are
+        kept. This cannot be undone.
+      </p>
+      <button class="btn danger-btn" @click="clearJobs">
+        Clear all jobs ({{ stats.total }})
+      </button>
     </section>
   </div>
   <div v-else class="empty">Loading settings…</div>
@@ -85,6 +95,11 @@ export default {
   async mounted() {
     if (!this.$store.state.config) await this.$store.dispatch('fetchConfig')
     this.load()
+  },
+  computed: {
+    stats() {
+      return this.$store.state.stats
+    },
   },
   methods: {
     load() {
@@ -149,6 +164,21 @@ export default {
         await this.$store.dispatch('rematch', 'all')
         this.message = 'Re-matching started — watch the status bar.'
         this.msgClass = 'ok'
+      } catch (e) {
+        this.message = 'Error: ' + e.message
+        this.msgClass = 'err'
+      }
+    },
+    async clearJobs() {
+      const n = this.$store.state.stats.total
+      if (!confirm(`Delete all ${n} stored jobs and run history? Your settings and prompt are kept. This cannot be undone.`))
+        return
+      try {
+        const res = await api.clearJobs()
+        this.message = res.detail || 'Cleared.'
+        this.msgClass = 'ok'
+        await this.$store.dispatch('fetchStats')
+        await this.$store.dispatch('fetchRunStatus')
       } catch (e) {
         this.message = 'Error: ' + e.message
         this.msgClass = 'err'

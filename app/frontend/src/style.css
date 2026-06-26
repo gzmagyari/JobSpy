@@ -100,6 +100,9 @@ a { color: var(--brand); text-decoration: none; }
 .btn.primary:hover { background: #4338ca; }
 .btn.on { background: #ecfdf5; border-color: #6ee7b7; color: #047857; }
 .btn.small { padding: 4px 10px; font-size: 12px; }
+.btn.danger-btn { border-color: #fca5a5; color: #b91c1c; }
+.btn.danger-btn:hover { background: #fef2f2; }
+.sep { border: none; border-top: 1px solid var(--line); margin: 16px 0; }
 
 /* ---- jobs toolbar ---- */
 .toolbar {

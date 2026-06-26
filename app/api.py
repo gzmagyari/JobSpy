@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, or_
+from sqlalchemy import delete, func, or_
 from sqlmodel import Session, select
 
 from app.db import get_session
@@ -138,6 +138,18 @@ def rematch(
     except AlreadyRunningError:
         raise HTTPException(409, "a run is already in progress")
     return ActionResult(detail=f"Reset {len(jobs)} jobs; re-matching started.")
+
+
+@router.post("/jobs/clear", response_model=ActionResult)
+def clear_jobs(session: Session = Depends(get_session)):
+    """Delete all stored jobs and run history (settings are kept)."""
+    if is_running():
+        raise HTTPException(409, "A run is in progress — try again once it finishes.")
+    total = session.exec(select(func.count()).select_from(Job)).one()
+    session.execute(delete(Job))
+    session.execute(delete(Run))
+    session.commit()
+    return ActionResult(detail=f"Cleared {total} jobs and run history.")
 
 
 # ---- Runs / stats ----------------------------------------------------------

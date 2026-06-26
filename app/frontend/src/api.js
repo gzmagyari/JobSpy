@@ -30,6 +30,7 @@ export default {
       body: JSON.stringify({ user_state }),
     }),
   rematch: (scope = 'all') => request('/jobs/rematch?scope=' + scope, { method: 'POST' }),
+  clearJobs: () => request('/jobs/clear', { method: 'POST' }),
   startRun: () => request('/run', { method: 'POST' }),
   getRunStatus: () => request('/run/status'),
   getStats: () => request('/stats'),

@@ -8,3 +8,11 @@
 *.pyc
 .env
 dist
+.venv/
+
+# Job-matching dashboard app
+app/data/
+*.db
+*.db-journal
+app/frontend/node_modules/
+app/frontend/dist/
